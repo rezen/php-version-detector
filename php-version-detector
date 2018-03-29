@@ -1,0 +1,85 @@
+#!/usr/bin/env php
+<?php
+
+
+if (!function_exists('ast\\parse_code')) {
+  echo "[!] The php extension ast (github.com/nikic/php-ast) is required!" . PHP_EOL;
+
+  exit(1);
+}
+
+require 'util.php';
+require 'Detectors/Finding/Confident.php';
+require 'Detectors/Finding/Possible.php';
+require 'Detectors/DetectVersionSet.php';
+require 'Detectors/DetectInList.php';
+require 'Detectors/DetectByFeature.php';
+require 'Detectors/DetectByFunction.php';
+require 'Detectors/DetectByClass.php';
+require 'Detectors/DetectByConst.php';
+
+interface Detector {
+  function investigate($node): bool;
+  function getNote(): string;
+}
+
+class Note {
+  public $type;
+  public $line;
+  public $content;
+  public $version; 
+}
+
+
+function getDetectors() {
+  $versions = [53, 54, 55, 56, 70, 71, 72];
+  $versions = array_reverse($versions);
+  return array_reduce($versions, function($aggr, $version) {
+    $aggr[] = include("detect/php$version.php");
+    return $aggr;
+  }, []);
+}
+
+if ($argv && $argv[0] && realpath($argv[0]) === __FILE__) {
+  $check_script = $argv[1] ?? '';
+  
+  if (!file_exists($check_script)) {
+    echo "[!] That file does not exist $check_script" . PHP_EOL;
+    exit(2);
+  }
+  
+  $detectors = getDetectors();
+
+  if (!is_dir($check_script)) {
+    investigateFile($check_script, $detectors);
+      $notes = [];
+    foreach($detectors as $detector) {
+      $notes = array_merge($notes, $detector->getNotes());
+    }
+     printNotesCli($notes);
+    return;
+  }
+  
+  $files =  rsearch(realpath($argv[1]), ".php");
+  // print_r($files);
+  foreach ($files as $file) {
+    investigateFile($file->getPathname(), $detectors);
+    echo $file->getPathname() . PHP_EOL;
+
+    $matches = array_filter($detectors, function($detector) {
+      return !$detector->shouldInvestigate();
+    });
+
+    if (count($matches) === count($detectors)) {
+      break;
+    }
+  }
+
+  $notes = [];
+  foreach($detectors as $detector) {
+    $notes = array_merge($notes, $detector->getNotes());
+  }
+
+  printNotesCli($notes);
+}
+
