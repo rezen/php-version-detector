@@ -1,4 +1,9 @@
-<?php
+<?php namespace Detectors;
+
+use ast;
+use ReflectionClass;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 
 function class_shortname($object) {
@@ -6,31 +11,18 @@ function class_shortname($object) {
     return '';
   }
 
-  return (new \ReflectionClass($object))->getShortName();
+  return (new ReflectionClass($object))->getShortName();
 }
 
-
-function printNotesCli($notes=[]) {
-  echo "v   | type    | confirmed | file                 | line". PHP_EOL;
-  echo str_repeat("-", 60) . PHP_EOL;
-
-  foreach ($notes as $note) {
-    $parts = [ 
-      str_pad($note[0], 3), 
-      str_pad($note[1], 7),
-      str_pad(class_shortname($note[2]), 9), 
-      $note[3],
-      $note[4]
-    ];
-
-    echo implode(' | ', $parts) . PHP_EOL;
-  }
+function getDetectors() {
+  $versions = [53, 54, 55, 56, 70, 71, 72];
+  $versions = array_reverse($versions);
+  $dir = realpath(dirname(__FILE__) . '../');
+  return array_reduce($versions, function($aggr, $version) use ($dir) {
+    $aggr[] = include("detect/php$version.php");
+    return $aggr;
+  }, []);
 }
-
-function printNotesJson($notes=[]) {
-  
-}
-
 
 
 function investigateNode($node, $file, &$detectors) {  

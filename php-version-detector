@@ -4,41 +4,11 @@
 
 if (!function_exists('ast\\parse_code')) {
   echo "[!] The php extension ast (github.com/nikic/php-ast) is required!" . PHP_EOL;
-
   exit(1);
 }
 
-require 'util.php';
-require 'Detectors/Finding/Confident.php';
-require 'Detectors/Finding/Possible.php';
-require 'Detectors/DetectVersionSet.php';
-require 'Detectors/DetectInList.php';
-require 'Detectors/DetectByFeature.php';
-require 'Detectors/DetectByFunction.php';
-require 'Detectors/DetectByClass.php';
-require 'Detectors/DetectByConst.php';
+require_once 'vendor/autoload.php';
 
-interface Detector {
-  function investigate($node): bool;
-  function getNote(): string;
-}
-
-class Note {
-  public $type;
-  public $line;
-  public $content;
-  public $version; 
-}
-
-
-function getDetectors() {
-  $versions = [53, 54, 55, 56, 70, 71, 72];
-  $versions = array_reverse($versions);
-  return array_reduce($versions, function($aggr, $version) {
-    $aggr[] = include("detect/php$version.php");
-    return $aggr;
-  }, []);
-}
 
 if ($argv && $argv[0] && realpath($argv[0]) === __FILE__) {
   $check_script = $argv[1] ?? '';
@@ -48,30 +18,23 @@ if ($argv && $argv[0] && realpath($argv[0]) === __FILE__) {
     exit(2);
   }
   
-  $detectors = getDetectors();
+  $detectors = Detectors\getDetectors();
 
   if (!is_dir($check_script)) {
-    investigateFile($check_script, $detectors);
-      $notes = [];
-    foreach($detectors as $detector) {
-      $notes = array_merge($notes, $detector->getNotes());
-    }
-     printNotesCli($notes);
-    return;
-  }
-  
-  $files =  rsearch(realpath($argv[1]), ".php");
-  // print_r($files);
-  foreach ($files as $file) {
-    investigateFile($file->getPathname(), $detectors);
-    echo $file->getPathname() . PHP_EOL;
+    Detectors\investigateFile($check_script, $detectors);
+  } else {
+    $files =  rsearch(realpath($argv[1]), ".php");
+    foreach ($files as $file) {
+      Detectors\investigateFile($file->getPathname(), $detectors);
+      echo $file->getPathname() . PHP_EOL;
 
-    $matches = array_filter($detectors, function($detector) {
-      return !$detector->shouldInvestigate();
-    });
+      $matches = array_filter($detectors, function($detector) {
+        return !$detector->shouldInvestigate();
+      });
 
-    if (count($matches) === count($detectors)) {
-      break;
+      if (count($matches) === count($detectors)) {
+        break;
+      }
     }
   }
 
@@ -80,6 +43,6 @@ if ($argv && $argv[0] && realpath($argv[0]) === __FILE__) {
     $notes = array_merge($notes, $detector->getNotes());
   }
 
-  printNotesCli($notes);
-}
+  Detectors\Printers\printCli($notes);
 
+}
