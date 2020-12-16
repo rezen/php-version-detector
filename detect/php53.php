@@ -20,8 +20,7 @@ return new Detectors\DetectVersionSet($version, [
       if ($node->flags !== ast\flags\MAGIC_METHOD) {
         return false;
       }
-      
-      print_r($node);
+      return false;
     },
     'Call static'
   ),

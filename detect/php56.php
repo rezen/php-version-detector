@@ -8,16 +8,50 @@ return new  Detectors\DetectVersionSet($version, [
       if ($node->kind !== ast\AST_PARAM) {
         return false;
       }
-      
       return ($node->flags === ast\flags\PARAM_VARIADIC);
     }, 
     'Variadic'
   ),
   new Detectors\DetectByFeature($version, 
     function ($node) {
-      return ($node->kind === ast\AST_UNPACK);
+      if ($node->kind !== ast\AST_METHOD_CALL && $node->kind !== ast\AST_CALL) {
+        return false;
+      }
+
+      foreach($node->children as $child) {
+        if ($child->kind === ast\AST_UNPACK) {
+          return true;
+        }
+      }
+
+      return false;
     }, 
-    'Unpacking'
+    'Unpacking in params'
+  ),
+  new Detectors\DetectByFeature($version, 
+    function ($node) {
+      if ($node->kind !== ast\AST_METHOD_CALL && $node->kind !== ast\AST_CALL) {
+        return false;
+      }
+
+      if (!isset($node->children['args'])) {
+        return false;
+      }
+
+      $args = $node->children['args'];
+      if (empty($args->children)) {
+        return false;
+      }
+
+      foreach($args->children as $child) {
+        if ($child->kind === ast\AST_UNPACK) {
+          return true;
+        }
+      }
+
+      return false;
+    }, 
+    'Unpacking too'
   ),
   new Detectors\DetectByFunction($version, [
     'gmp_root',

@@ -1,13 +1,13 @@
 <?php
 
-require 'Detectors/util.php';
-require 'Detectors/Finding/Confident.php';
-require 'Detectors/Finding/Possible.php';
-require 'Detectors/DetectVersionSet.php';
-require 'Detectors/DetectInList.php';
-require 'Detectors/DetectByFeature.php';
-require 'Detectors/DetectByFunction.php';
-require 'Detectors/DetectByClass.php';
-require 'Detectors/DetectByConst.php';
-require 'Detectors/Printers/Cli.php';
-require 'Detectors/Printers/Json.php';
+require dirname(__FILE__) . '/../Detectors/util.php';
+require dirname(__FILE__) . '/../Detectors/Finding/Confident.php';
+require dirname(__FILE__) . '/../Detectors/Finding/Possible.php';
+require dirname(__FILE__) . '/../Detectors/DetectVersionSet.php';
+require dirname(__FILE__) . '/../Detectors/DetectInList.php';
+require dirname(__FILE__) . '/../Detectors/DetectByFeature.php';
+require dirname(__FILE__) . '/../Detectors/DetectByFunction.php';
+require dirname(__FILE__) . '/../Detectors/DetectByClass.php';
+require dirname(__FILE__) . '/../Detectors/DetectByConst.php';
+require dirname(__FILE__) . '/../Detectors/Printers/Cli.php';
+require dirname(__FILE__) . '/../Detectors/Printers/Json.php';
