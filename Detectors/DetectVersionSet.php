@@ -1,9 +1,12 @@
 <?php namespace Detectors;
 
 use Detectors\Finding;
+Use Detectors\Note\Note;
 
 class DetectVersionSet
 {
+  public $noteClass = Note::class;
+
   public function __construct($version, $detectors=[])
   {
     $this->version = $version;
@@ -24,7 +27,13 @@ class DetectVersionSet
       if (is_null($finding)) {continue;}
       $class = class_shortname($detector);
       $class = str_replace('DetectBy', '', $class);
-      $this->notes[] = [$this->version, $class, $finding, $file, $node->lineno,];
+      $note = new $this->noteClass;
+      $note->version = $this->version;
+      $note->class = $class;
+      $note->finding = $finding;
+      $note->file = $file;
+      $note->node = $node;
+      $this->notes[] = $note;
       if ($this->quickCheck === true) {
         // break;
       }

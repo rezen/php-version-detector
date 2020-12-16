@@ -1,6 +1,7 @@
 <?php
 
 require dirname(__FILE__) . '/../Detectors/util.php';
+require dirname(__FILE__) . '/../Detectors/Note/Note.php';
 require dirname(__FILE__) . '/../Detectors/Finding/Confident.php';
 require dirname(__FILE__) . '/../Detectors/Finding/Possible.php';
 require dirname(__FILE__) . '/../Detectors/DetectVersionSet.php';
