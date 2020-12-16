@@ -15,7 +15,7 @@ function class_shortname($object) {
 }
 
 function getDetectors() {
-  $versions = [53, 54, 55, 56, 70, 71, 72];
+  $versions = [53, 54, 55, 56, 70, 71, 72, 73, 74, 80];
   $versions = array_reverse($versions);
   $dir = realpath(dirname(__FILE__) . '../');
   return array_reduce($versions, function($aggr, $version) use ($dir) {
