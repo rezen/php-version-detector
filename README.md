@@ -8,8 +8,8 @@ features/functions used.
 
 
 ```sh
-php-version-detector ./tests/ast-feed.php 
-
+docker build -t php-version-detector .
+docker run -t --rm -v $(pwd):/app php-version-detector /app/tests/ast-feed.php
 ```
 
 
